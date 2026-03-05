@@ -1,6 +1,20 @@
-const TARGET_URL = 'https://pipero-io-eight.vercel.app/api/public/leads';
+// Tunnel for local CRM; when deployed use your Vercel CRM URL
+const TARGET_URL = 'https://happy-times-give.loca.lt/api/public/leads';
+
+function setCors(res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+}
 
 module.exports = async (req, res) => {
+  setCors(res);
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204;
+    res.end();
+    return;
+  }
+
   if (req.method !== 'POST') {
     res.statusCode = 405;
     res.setHeader('Allow', 'POST');

@@ -1181,7 +1181,7 @@
           const fd = new FormData(form);
 
           const payload = {
-            company: fd.get('company'),
+            company: fd.get('company') || 'MeraTutor AP Math',
             name: fd.get('student_name'),
             phone: fd.get('phone'),
             grade_level: fd.get('grade'),
@@ -1191,26 +1191,14 @@
             utm: getUtmParams()
           };
 
-          const isLocal =
-            window.location.hostname === 'localhost' ||
-            window.location.hostname === '127.0.0.1';
+          // Use proxy when deployed; from localhost call deployed proxy to avoid CORS with tunnel
+          const LEADS_API_URL =
+            (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+              ? 'https://mt-lp.vercel.app/api/leads'
+              : '/api/leads';
 
           try {
-            if (isLocal) {
-              await fetch('https://pipero-io-eight.vercel.app/api/public/leads', {
-                method: 'POST',
-                // In no-cors mode we must use a "simple" content type.
-                headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-                body: JSON.stringify(payload),
-                mode: 'no-cors'
-              });
-              console.log('Lead payload sent in local dev mode', payload);
-              alert('Thanks! Your demo request has been received. (Local test mode)');
-              form.reset();
-              return;
-            }
-
-            const res = await fetch('/api/leads', {
+            const res = await fetch(LEADS_API_URL, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(payload)
