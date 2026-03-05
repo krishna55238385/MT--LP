@@ -1210,7 +1210,7 @@
               return;
             }
 
-            const res = await fetch('https://pipero-io-eight.vercel.app/api/public/leads', {
+            const res = await fetch('/api/leads', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(payload)
