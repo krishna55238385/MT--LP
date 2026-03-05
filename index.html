@@ -1023,28 +1023,46 @@
             <div id="formInner">
                 <div class="form-title">🏆 Book Your Demo Now</div>
                 <div class="form-trust">👨‍👩‍👧 US-Based AP Math Experts</div>
-                <div class="field">
-                    <div class="input-wrap" id="w-name"><span class="input-icon">👤</span><input type="text" id="name"
-                            placeholder="Student Name"></div>
-                </div>
-                <div class="field">
-                    <div class="input-wrap" id="w-grade"><span class="input-icon">🎓</span><select id="grade">
-                            <option value="" disabled selected>Select Grade</option>
-                            <script>for (let i = 5; i <= 12; i++)document.write('<option value="' + i + '">Grade ' + i + '</option>')</script>
-                        </select></div>
-                </div>
-                <div class="field">
-                    <div class="input-wrap" id="w-phone">
-                        <div class="phone-select-wrap"><select id="country" class="country-select">
-                                <option value="1">🇺🇸 +1</option>
-                                <option value="1-ca">🇨🇦 +1</option>
-                                <option value="44">🇬🇧 +44</option>
-                                <option value="91">🇮🇳 +91</option>
-                                <option value="61">🇦🇺 +61</option>
-                            </select></div><input type="tel" id="phone" placeholder="Phone Number">
+                <form id="ap-math-demo-form">
+                    <div class="field">
+                        <div class="input-wrap" id="w-name">
+                            <span class="input-icon">👤</span>
+                            <input type="text" id="name" name="student_name" placeholder="Student Name" required />
+                        </div>
                     </div>
-                </div>
-                <button class="cta" onclick="submitLead()">🎯 Book My Demo →</button>
+                    <div class="field">
+                        <div class="input-wrap" id="w-grade">
+                            <span class="input-icon">🎓</span>
+                            <select id="grade" name="grade" required>
+                                <option value="">Select Grade</option>
+                                <option value="9">9th Grade</option>
+                                <option value="10">10th Grade</option>
+                                <option value="11">11th Grade</option>
+                                <option value="12">12th Grade</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="input-wrap" id="w-phone">
+                            <div class="phone-select-wrap">
+                                <select id="country" class="country-select">
+                                    <option value="1">🇺🇸 +1</option>
+                                    <option value="1-ca">🇨🇦 +1</option>
+                                    <option value="44">🇬🇧 +44</option>
+                                    <option value="91">🇮🇳 +91</option>
+                                    <option value="61">🇦🇺 +61</option>
+                                </select>
+                            </div>
+                            <input type="tel" id="phone" name="phone" placeholder="Phone Number" required />
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="company" value="MeraTutor AP Math" />
+                    <input type="hidden" name="subject" value="AP Math" />
+                    <input type="hidden" name="campaign" value="AP_MATH_LP" />
+
+                    <button type="submit" class="cta">Book My Demo</button>
+                </form>
             </div>
         </div>
 
@@ -1098,25 +1116,6 @@
         }
         setInterval(updateT, 1000); updateT();
 
-        // Lead Submission
-        window.submitLead = function () {
-            const n = document.getElementById('name').value.trim();
-            const g = document.getElementById('grade').value;
-            const p = document.getElementById('phone').value.replace(/\D/g, '');
-            let ok = true;
-            if (!n) { document.getElementById('w-name').classList.add('error'); ok = false; }
-            if (!g) { document.getElementById('w-grade').classList.add('error'); ok = false; }
-            if (p.length < 7) { document.getElementById('w-phone').classList.add('error'); ok = false; }
-
-            if (!ok) {
-                setTimeout(() => document.querySelectorAll('.input-wrap').forEach(el => el.classList.remove('error')), 600);
-                return;
-            }
-
-            window.location.href = 'success.html';
-            console.log('Lead:', { n, g, p, c: document.getElementById('country').value });
-        }
-
         // Phone Mask
         document.getElementById('phone').addEventListener('input', (e) => {
             let v = e.target.value.replace(/\D/g, '');
@@ -1131,6 +1130,58 @@
 
         // Prev pull-to-refresh
         document.addEventListener('touchmove', (e) => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+    </script>
+
+    <script>
+      (function () {
+        const form = document.getElementById('ap-math-demo-form');
+        if (!form) return;
+
+        function getUtmParams() {
+          const params = new URLSearchParams(window.location.search);
+          const utm = {};
+          ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'].forEach(key => {
+            const v = params.get(key);
+            if (v) utm[key] = v;
+          });
+          utm.full_url = window.location.href;
+          return utm;
+        }
+
+        form.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          const fd = new FormData(form);
+
+          const payload = {
+            company: fd.get('company'),
+            name: fd.get('student_name'),
+            phone: fd.get('phone'),
+            grade_level: fd.get('grade'),
+            subject: fd.get('subject'),
+            campaign: fd.get('campaign'),
+            source: 'LP_AP_Math',
+            utm: getUtmParams()
+          };
+
+          try {
+            const res = await fetch('https://pipero-io-eight.vercel.app/api/public/leads', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            const json = await res.json();
+            if (json.success) {
+              alert('Thanks! Your demo request has been received.');
+              form.reset();
+            } else {
+              alert('Submission failed: ' + (json.error || 'Please try again.'));
+            }
+          } catch (err) {
+            console.error(err);
+            alert('Network error. Please try again.');
+          }
+        });
+      })();
     </script>
 </body>
 
