@@ -1023,7 +1023,7 @@
             <div id="formInner">
                 <div class="form-title">🏆 Book Your Demo Now</div>
                 <div class="form-trust">👨‍👩‍👧 US-Based AP Math Experts</div>
-                <form id="ap-math-demo-form">
+                <form id="ap-math-demo-form" novalidate>
                     <div class="field">
                         <div class="input-wrap" id="w-name">
                             <span class="input-icon">👤</span>
@@ -1150,6 +1150,34 @@
 
         form.addEventListener('submit', async function (e) {
           e.preventDefault();
+
+          const nameInput = document.getElementById('name');
+          const gradeSelect = document.getElementById('grade');
+          const phoneInput = document.getElementById('phone');
+
+          let ok = true;
+          if (!nameInput.value.trim()) {
+            document.getElementById('w-name').classList.add('error');
+            ok = false;
+          }
+          if (!gradeSelect.value) {
+            document.getElementById('w-grade').classList.add('error');
+            ok = false;
+          }
+          const phoneDigits = phoneInput.value.replace(/\D/g, '');
+          if (phoneDigits.length < 7) {
+            document.getElementById('w-phone').classList.add('error');
+            ok = false;
+          }
+
+          if (!ok) {
+            setTimeout(() => {
+              document.querySelectorAll('.input-wrap').forEach(el => el.classList.remove('error'));
+            }, 600);
+            alert('Please fill in all fields correctly.');
+            return;
+          }
+
           const fd = new FormData(form);
 
           const payload = {
